@@ -3,12 +3,14 @@
 #include <iostream>
 #include "Player.h"
 #include <vector>
-
 using namespace std;
 
-int WINDOW_WIDTH=1024, WINDOW_HEIGHT=800;
+float WINDOW_WIDTH=1000.0f, WINDOW_HEIGHT=1000.0f;
 float translacaoX=0, translacaoY=0;
 float lleft, rright, ttop, bbottom, panX, panY;
+
+vector<Player> players;
+int currentPlayer = 0;
 
 void desenhaEixos() {
 
@@ -26,25 +28,25 @@ void desenhaEixos() {
 
 }
 
-void desenhaCasinha() {
+void drawPlayer(float w, float h) {
 
 	glLineWidth(3);
-	glBegin(GL_LINE_LOOP);
-    glVertex2f(-0.2f,0.1f);
-	glVertex2f(-0.2f,-0.2f);
-	glVertex2f(0.2f,-0.2f);
-	glVertex2f(0.2f,0.1f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(w   , 0.0f);
+        glVertex2f(w   , h   );
+        glVertex2f(0.0f, h   );
 	glEnd();
 
 
-    glBegin(GL_TRIANGLES);
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glVertex2f(-0.2f,0.1f);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex2f(0.0f,0.22f);
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glVertex2f(0.2f,0.1f);
-    glEnd();
+//    glBegin(GL_TRIANGLES);
+//    glColor3f(0.0f, 0.0f, 1.0f);
+//    glVertex2f(-0.2f,0.1f);
+//    glColor3f(1.0f, 0.0f, 0.0f);
+//    glVertex2f(0.0f,0.22f);
+//    glColor3f(0.0f, 0.0f, 1.0f);
+//    glVertex2f(0.2f,0.1f);
+//    glEnd();
 
 }
 
@@ -64,15 +66,22 @@ void Desenha(void)
 
 	glLoadIdentity();
 
-	desenhaEixos();
+	//desenhaEixos();
 
 	glPopMatrix();
 
-	glLoadIdentity();
+    for(int i =0; i < players.size(); i++){
+        glPushMatrix();
+            glTranslatef(players[i].getX(), players[i].getY(), 0.0f);
+            drawPlayer(players[i].getW(), players[i].getH());
+        glPopMatrix();
+    }
 
-    glTranslatef(translacaoX,translacaoY,0);
+	//glLoadIdentity();
 
-    desenhaCasinha();
+    //glTranslatef(translacaoX,translacaoY,0);
+
+    //desenhaCasinha();
 
 	// Define a cor de desenho: azul
 	//glColor3f(1,0,1);
@@ -98,42 +107,43 @@ void Teclado (unsigned char key, int x, int y)
 void TeclasEspecias(int key, int x, int y)
 {
 
-	 if(key == GLUT_KEY_LEFT)
-		translacaoX=translacaoX-0.1;
+	if(key == GLUT_KEY_LEFT){
+       players[currentPlayer].translate(-(10/WINDOW_WIDTH), 0.0f);
+    }
 
-     if(key == GLUT_KEY_RIGHT)
-		translacaoX=translacaoX+0.1;
+    if(key == GLUT_KEY_RIGHT){
+       players[currentPlayer].translate(10/WINDOW_WIDTH, 0.0f);
+    }
+	if(key == GLUT_KEY_UP){
+       players[currentPlayer].translate(0.0f, 10/WINDOW_HEIGHT);
+    }
+	if(key == GLUT_KEY_DOWN){
+       players[currentPlayer].translate(0.0f, -(10/WINDOW_HEIGHT));
+    }
+    if(key == GLUT_KEY_END){
+	    lleft-=0.1;
+        rright+=0.1;
+        ttop+=0.1;
+        bbottom-=0.1;
+	    }
 
-	 if(key == GLUT_KEY_UP)
-	    translacaoY=translacaoY+0.1;
+	if(key == GLUT_KEY_HOME){
+        lleft+=0.1;
+        rright-=0.1;
+        ttop-=0.1;
+        bbottom+=0.1;
+	}
 
-	 if(key == GLUT_KEY_DOWN)
-		translacaoY=translacaoY-0.1;
+	 if(key == GLUT_KEY_F9)
+        panX+=0.1;
+     if(key == GLUT_KEY_F10)
+        panX-=0.1;
+     if(key == GLUT_KEY_F11)
+        panY+=0.1;
+     if(key == GLUT_KEY_F12)
+        panY-=0.1;
 
-     if(key == GLUT_KEY_END){
-		 lleft-=0.1;
-         rright+=0.1;
-         ttop+=0.1;
-         bbottom-=0.1;
-		 }
-
-	 if(key == GLUT_KEY_HOME){
-         lleft+=0.1;
-         rright-=0.1;
-         ttop-=0.1;
-         bbottom+=0.1;
-	 }
-
-	  if(key == GLUT_KEY_F9)
-         panX+=0.1;
-      if(key == GLUT_KEY_F10)
-         panX-=0.1;
-      if(key == GLUT_KEY_F11)
-         panY+=0.1;
-      if(key == GLUT_KEY_F12)
-         panY-=0.1;
-
-	 glutPostRedisplay();
+	glutPostRedisplay();
 }
 
 
@@ -142,10 +152,12 @@ void Inicializa(void)
 {
 	// Define a janela de visualização 2D
 	glMatrixMode(GL_PROJECTION);
-	lleft=-1.0;
+	lleft=0.0;
+	//lleft=-1.0;
 	rright=1.0;
 	ttop=1.0;
-	bbottom=-1.0;
+	bbottom=-0.0;
+	//bbottom=-1.0;
 	gluOrtho2D(lleft+panX,rright+panX,bbottom+panY,ttop+panY);
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -156,6 +168,16 @@ int main(void)
 
     int argc = 0;
 	char *argv[] = { (char *)"gl", 0 };
+
+    Player p1(0.0f, 0.0f);
+    Player p2(1.0f, 0.0f);
+
+    p2.translate(-p2.getW(), 0.0f);
+
+    cout << "x= " << p2.getX() << " y= " << p2.getY() << endl;
+
+    players.push_back(p1);
+    players.push_back(p2);
 
 	glutInit(&argc,argv);
 

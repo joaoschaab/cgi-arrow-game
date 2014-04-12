@@ -1,30 +1,11 @@
-# 1 "Player.cpp"
-# 1 "<command-line>"
-# 1 "Player.cpp"
-# 1 ".h" 1
-       
-class Player{
-    public:
-        Player(void);
-        ~Player(void);
-        float getX(void);
-        float getY(void);
-        float getW(void);
-        float getH(void);
+#include "Player.h"       
 
-        void translate(float tx, float ty);
-        void setWidth(float width);
-        void setHeight(float height);
-    private:
-        float x, y;
-        float w, h;
-};
-# 2 "Player.cpp" 2
-
-Player::Player(void)
+Player::Player(float posx, float posy)
 {
-    w = 0.3f;
-    h = 0.3f;
+    x = posx;
+    y = posy;
+    w = 0.1f;
+    h = 0.1f;
 }
 
 
