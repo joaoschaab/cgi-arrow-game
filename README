@@ -1,0 +1,5 @@
+** INSTALL **
+sudo apt-get install freeglut3 freeglut3-dev
+** RUN **
+g++ main_feito.cpp -o opengl1 -lGL -lstdc++ -lc -lm -lglut -lGLU
+
