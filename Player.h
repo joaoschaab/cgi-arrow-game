@@ -1,4 +1,5 @@
 #pragma once
+#include "PVector.h"
 class Player
 {
 public:
@@ -15,7 +16,8 @@ public:
     void setWidth(float width);
     void setHeight(float height);
 
-private: 
-	float x, y, w, h;
+private:
+    PVector *p;
+	float w, h;
 };
 

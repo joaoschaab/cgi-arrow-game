@@ -1,9 +1,8 @@
 #include "Player.h"       
-
+#include "PVector.h"
 Player::Player(float posx, float posy)
 {
-    x = posx;
-    y = posy;
+    p = new PVector(posx, posy);
     w = 0.1f;
     h = 0.1f;
 }
@@ -13,14 +12,13 @@ Player::~Player(void)
 {
 }
 
-float Player::getX() { return x; }
-float Player::getY() { return y; }
+float Player::getX() { return p->getX(); }
+float Player::getY() { return p->getY(); }
 float Player::getW() { return w; }
 float Player::getH() { return h; }
 
 void Player::translate(float tx, float ty){
-    x += tx;
-    y += ty;
+    p->addSum(tx, ty);
 }
 
 void Player::setWidth(float width){

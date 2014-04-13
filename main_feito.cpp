@@ -1,18 +1,20 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <iostream>
+#include <sstream>
 #include "Player.h"
+#include "PVector.h"
 #include <vector>
 using namespace std;
 
-float WINDOW_WIDTH=1280.0f, WINDOW_HEIGHT=1024.0f;
-float translacaoX=0, translacaoY=0;
+float WINDOW_WIDTH=800.0f, WINDOW_HEIGHT=800.0f;
+//float WINDOW_WIDTH=1280.0f, WINDOW_HEIGHT=1024.0f;
+
 float lleft, rright, ttop, bbottom, panX, panY;
 
-float px = 0.0f;
-float py = 0.0f;
-float pfx = 0.0f;
-float pfy = 0.0f;
+
+PVector *pi = NULL;
+PVector *pf = NULL;
 
 vector<Player> players;
 int currentPlayer = 0;
@@ -43,33 +45,16 @@ void drawPlayer(float w, float h) {
         glVertex2f(0.0f, h   );
 	glEnd();
 
-
-//    glBegin(GL_TRIANGLES);
-//    glColor3f(0.0f, 0.0f, 1.0f);
-//    glVertex2f(-0.2f,0.1f);
-//    glColor3f(1.0f, 0.0f, 0.0f);
-//    glVertex2f(0.0f,0.22f);
-//    glColor3f(0.0f, 0.0f, 1.0f);
-//    glVertex2f(0.2f,0.1f);
-//    glEnd();
-
 }
+
 void draw_vector(float x, float y){
-	//glClearColor(0,0,0,1);
-	//glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();
         glBegin(GL_LINES);
-            float ppx = px / WINDOW_WIDTH;
-            float ppy = py / WINDOW_HEIGHT;
-            float xx = x / WINDOW_WIDTH;
-            float yy = y / WINDOW_HEIGHT;
-            glVertex2f(xx, 1-yy);
-            glVertex2f(ppx, 1-ppy);
+            glVertex2f(x/WINDOW_WIDTH         , 1 - y/WINDOW_HEIGHT         );
+            glVertex2f(pi->getX()/WINDOW_WIDTH, 1 - pi->getY()/WINDOW_HEIGHT);
         glEnd();
     glPopMatrix();
-	//glFlush();
 }
-
 
 void Desenha(void)
 {
@@ -98,48 +83,26 @@ void Desenha(void)
         glPopMatrix();
     }
 
-	//glLoadIdentity();
+    if(pi != NULL)
+        draw_vector(pf->getX(), pf->getY());
 
-    //glTranslatef(translacaoX,translacaoY,0);
-
-    //desenhaCasinha();
-
-	// Define a cor de desenho: azul
-	//glColor3f(1,0,1);
-
-		// Desenha um triângulo no centro da janela
-//	glBegin(GL_TRIANGLES);
-//		glVertex3f(-0.5,-0.5,0);
-//		glVertex3f( 0.0, 0.5,0);
-//		glVertex3f( 0.5,-0.5,0);
-//	glEnd();
-    if(px != 0.0f && py != 0.0f)
-        draw_vector(pfx, pfy);
 	//Executa os comandos OpenGL
 	glFlush();
 }
 
 
 void mouse_drag (int x, int y){
-    pfx = x;
-    pfy = y;
+    pf = new PVector(x, y);
 	glutPostRedisplay();
-    //draw_vector(x, y); 
-
-    //cout << "x= " << x << " y= " << y << endl;
 }
 
 void mouse_click(int button, int state, int x, int y){
     if(state == 0){ // clickou
-        px = x;
-        py = y;
+        pi = new PVector(x, y);
     }else if(state == 1){ // soltou o click
-        px = 0.0f;
-        py = 0.0f;
-	glutPostRedisplay();
-
+        pi = NULL;
+        glutPostRedisplay();
     }
-//    cout << "button= " << button << " state= " << state << " x= " << x << " y= " << y << endl;
 }
 
 
@@ -199,11 +162,9 @@ void Inicializa(void)
 	// Define a janela de visualização 2D
 	glMatrixMode(GL_PROJECTION);
 	lleft=0.0;
-	//lleft=-1.0;
 	rright=1.0;
 	ttop=1.0;
 	bbottom=-0.0;
-	//bbottom=-1.0;
 	gluOrtho2D(lleft+panX,rright+panX,bbottom+panY,ttop+panY);
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -219,8 +180,6 @@ int main(void)
     Player p2(1.0f, 0.0f);
 
     p2.translate(-p2.getW(), 0.0f);
-
-    cout << "x= " << p2.getX() << " y= " << p2.getY() << endl;
 
     players.push_back(p1);
     players.push_back(p2);
