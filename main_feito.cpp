@@ -5,9 +5,14 @@
 #include <vector>
 using namespace std;
 
-float WINDOW_WIDTH=1000.0f, WINDOW_HEIGHT=1000.0f;
+float WINDOW_WIDTH=1280.0f, WINDOW_HEIGHT=1024.0f;
 float translacaoX=0, translacaoY=0;
 float lleft, rright, ttop, bbottom, panX, panY;
+
+float px = 0.0f;
+float py = 0.0f;
+float pfx = 0.0f;
+float pfy = 0.0f;
 
 vector<Player> players;
 int currentPlayer = 0;
@@ -49,6 +54,22 @@ void drawPlayer(float w, float h) {
 //    glEnd();
 
 }
+void draw_vector(float x, float y){
+	//glClearColor(0,0,0,1);
+	//glClear(GL_COLOR_BUFFER_BIT);
+    glPushMatrix();
+        glBegin(GL_LINES);
+            float ppx = px / WINDOW_WIDTH;
+            float ppy = py / WINDOW_HEIGHT;
+            float xx = x / WINDOW_WIDTH;
+            float yy = y / WINDOW_HEIGHT;
+            glVertex2f(xx, 1-yy);
+            glVertex2f(ppx, 1-ppy);
+        glEnd();
+    glPopMatrix();
+	//glFlush();
+}
+
 
 void Desenha(void)
 {
@@ -92,10 +113,35 @@ void Desenha(void)
 //		glVertex3f( 0.0, 0.5,0);
 //		glVertex3f( 0.5,-0.5,0);
 //	glEnd();
-
+    if(px != 0.0f && py != 0.0f)
+        draw_vector(pfx, pfy);
 	//Executa os comandos OpenGL
 	glFlush();
 }
+
+
+void mouse_drag (int x, int y){
+    pfx = x;
+    pfy = y;
+	glutPostRedisplay();
+    //draw_vector(x, y); 
+
+    //cout << "x= " << x << " y= " << y << endl;
+}
+
+void mouse_click(int button, int state, int x, int y){
+    if(state == 0){ // clickou
+        px = x;
+        py = y;
+    }else if(state == 1){ // soltou o click
+        px = 0.0f;
+        py = 0.0f;
+	glutPostRedisplay();
+
+    }
+//    cout << "button= " << button << " state= " << state << " x= " << x << " y= " << y << endl;
+}
+
 
 // Função callback chamada para gerenciar eventos de teclas
 void Teclado (unsigned char key, int x, int y)
@@ -197,6 +243,12 @@ int main(void)
 	glutKeyboardFunc (Teclado);
 
 	glutSpecialFunc (TeclasEspecias);
+    
+    // Registra a função callback para drag de mouse
+    glutMotionFunc(mouse_drag);
+
+    // Registra a função callback para click de mouse
+    glutMouseFunc(mouse_click);
 
 	// Chama a função responsável por fazer as inicializações
 	Inicializa();
