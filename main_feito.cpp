@@ -7,14 +7,15 @@
 #include <vector>
 using namespace std;
 
-float WINDOW_WIDTH=800.0f, WINDOW_HEIGHT=800.0f;
-//float WINDOW_WIDTH=1280.0f, WINDOW_HEIGHT=1024.0f;
+//float WINDOW_WIDTH=800.0f, WINDOW_HEIGHT=800.0f;
+float WINDOW_WIDTH=768.0f, WINDOW_HEIGHT=768.0f;
 
 float lleft, rright, ttop, bbottom, panX, panY;
 
 
 PVector *pi = NULL;
 PVector *pf = NULL;
+PVector *arrow = NULL;
 
 vector<Player> players;
 int currentPlayer = 0;
@@ -47,11 +48,12 @@ void drawPlayer(float w, float h) {
 
 }
 
-void draw_vector(float x, float y){
+void draw_vector(float x, float y, float xf, float yf){
     glPushMatrix();
+	glLineWidth(2);
         glBegin(GL_LINES);
-            glVertex2f(x/WINDOW_WIDTH         , 1 - y/WINDOW_HEIGHT         );
-            glVertex2f(pi->getX()/WINDOW_WIDTH, 1 - pi->getY()/WINDOW_HEIGHT);
+            glVertex2f(x/WINDOW_WIDTH, 1 - y/WINDOW_HEIGHT);
+            glVertex2f(xf/WINDOW_WIDTH         , 1 - yf/WINDOW_HEIGHT         );
         glEnd();
     glPopMatrix();
 }
@@ -83,9 +85,12 @@ void Desenha(void)
         glPopMatrix();
     }
 
-    if(pi != NULL)
-        draw_vector(pf->getX(), pf->getY());
-
+    if(pi != NULL) // desenha o vetor quando clika
+        draw_vector(pi->getX(), pi->getY(), pf->getX(), pf->getY());
+    if(arrow != NULL){
+       	cout << arrow->getX() << " " << arrow->getY() << endl;
+        //draw_vector(arrow->getX(), arrow->getY());
+    }
 	//Executa os comandos OpenGL
 	glFlush();
 }
@@ -93,13 +98,14 @@ void Desenha(void)
 
 void mouse_drag (int x, int y){
     pf = new PVector(x, y);
-	glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 void mouse_click(int button, int state, int x, int y){
     if(state == 0){ // clickou
         pi = new PVector(x, y);
     }else if(state == 1){ // soltou o click
+	arrow = new PVector(pf->getX() - pi->getX(), pf->getY() - pi->getY());
         pi = NULL;
         glutPostRedisplay();
     }
