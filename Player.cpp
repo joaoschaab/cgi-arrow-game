@@ -3,8 +3,8 @@
 Player::Player(float posx, float posy)
 {
     p = new PVector(posx, posy);
-    w = 0.1f;
-    h = 0.1f;
+    w = 100.0f;
+    h = 100.0f;
 }
 
 

@@ -52,8 +52,8 @@ void draw_vector(float x, float y, float xf, float yf){
     glPushMatrix();
 	glLineWidth(2);
         glBegin(GL_LINES);
-            glVertex2f(x/WINDOW_WIDTH, 1 - y/WINDOW_HEIGHT);
-            glVertex2f(xf/WINDOW_WIDTH         , 1 - yf/WINDOW_HEIGHT         );
+            glVertex2f(x,  y);
+            glVertex2f(xf, yf);
         glEnd();
     glPopMatrix();
 }
@@ -88,7 +88,7 @@ void Desenha(void)
     if(pi != NULL) // desenha o vetor quando clika
         draw_vector(pi->getX(), pi->getY(), pf->getX(), pf->getY());
     if(arrow != NULL){
-       	cout << arrow->getX() << " " << arrow->getY() << endl;
+       	//cout << arrow->getX() << " " << arrow->getY() << endl;
         //draw_vector(arrow->getX(), arrow->getY());
     }
 	//Executa os comandos OpenGL
@@ -123,17 +123,16 @@ void TeclasEspecias(int key, int x, int y)
 {
 
 	if(key == GLUT_KEY_LEFT){
-       players[currentPlayer].translate(-(10/WINDOW_WIDTH), 0.0f);
+       players[currentPlayer].translate(-10.0f, 0.0f);
     }
-
     if(key == GLUT_KEY_RIGHT){
-       players[currentPlayer].translate(10/WINDOW_WIDTH, 0.0f);
+       players[currentPlayer].translate(10.0f, 0.0f);
     }
 	if(key == GLUT_KEY_UP){
-       players[currentPlayer].translate(0.0f, 10/WINDOW_HEIGHT);
+       players[currentPlayer].translate(0.0f, -10.0f);
     }
 	if(key == GLUT_KEY_DOWN){
-       players[currentPlayer].translate(0.0f, -(10/WINDOW_HEIGHT));
+       players[currentPlayer].translate(0.0f, 10.0f);
     }
     if(key == GLUT_KEY_END){
 	    lleft-=0.1;
@@ -168,9 +167,9 @@ void Inicializa(void)
 	// Define a janela de visualização 2D
 	glMatrixMode(GL_PROJECTION);
 	lleft=0.0;
-	rright=1.0;
-	ttop=1.0;
-	bbottom=-0.0;
+	rright=WINDOW_WIDTH;
+	ttop=0.0;
+	bbottom=WINDOW_HEIGHT;
 	gluOrtho2D(lleft+panX,rright+panX,bbottom+panY,ttop+panY);
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -182,10 +181,11 @@ int main(void)
     int argc = 0;
 	char *argv[] = { (char *)"gl", 0 };
 
-    Player p1(0.0f, 0.0f);
-    Player p2(1.0f, 0.0f);
+    Player p1(0.0f, WINDOW_HEIGHT);
+    Player p2(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    p2.translate(-p2.getW(), 0.0f);
+    p1.translate(0.0f, -p1.getH());
+    p2.translate(-p2.getW(), -p2.getH());
 
     players.push_back(p1);
     players.push_back(p2);
