@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "PVector.h"
 #include <vector>
+#include <math.h>
 using namespace std;
 
 //float WINDOW_WIDTH=800.0f, WINDOW_HEIGHT=800.0f;
@@ -20,23 +21,26 @@ PVector *arrow = NULL;
 vector<Player> players;
 int currentPlayer = 0;
 
-void desenhaEixos() {
-
-	glColor3f(1,1,1);
-
-	glLineWidth(1);
-	glBegin(GL_LINES);
-
-    glVertex2f(lleft,0.0);
-	glVertex2f(rright, 0.0);
-	glVertex2f(0.0,bbottom);
-	glVertex2f(0.0,ttop);
-
-	glEnd();
-
+void draw_circle(float x, float y, float r){
+    bool filled = false;
+    int subdivs = 100;
+    glPushMatrix();
+        glLineWidth(3);
+        if(filled){
+            glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(x, y);
+        }else{
+             glBegin(GL_LINE_STRIP);
+        }
+        for(int i = 0; i <= subdivs; i++){
+            float angle = i * ((2.0f * 3.14159f) / subdivs);
+            glVertex2f(x + r*cos(angle), y + r*sin(angle));
+        }
+        glEnd();
+    glPopMatrix();
 }
 
-void drawPlayer(float w, float h) {
+void draw_player(float w, float h) {
 
 	glLineWidth(3);
     glBegin(GL_LINE_LOOP);
@@ -58,7 +62,7 @@ void draw_vector(float x, float y, float xf, float yf){
     glPopMatrix();
 }
 
-void Desenha(void)
+void Draw(void)
 {
 
     glMatrixMode(GL_PROJECTION);
@@ -70,18 +74,10 @@ void Desenha(void)
 	glClearColor(0,0,0,1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glPushMatrix();
-
-	glLoadIdentity();
-
-	//desenhaEixos();
-
-	glPopMatrix();
-
     for(int i =0; i < players.size(); i++){
         glPushMatrix();
             glTranslatef(players[i].getX(), players[i].getY(), 0.0f);
-            drawPlayer(players[i].getW(), players[i].getH());
+            draw_player(players[i].getW(), players[i].getH());
         glPopMatrix();
     }
 
@@ -92,6 +88,8 @@ void Desenha(void)
         //draw_vector(arrow->getX(), arrow->getY());
     }
 	//Executa os comandos OpenGL
+    draw_circle(players[currentPlayer].getX() + players[currentPlayer].getW()/2, 
+                players[currentPlayer].getY() + players[currentPlayer].getH()/2, 100);
 	glFlush();
 }
 
@@ -139,7 +137,7 @@ void TeclasEspecias(int key, int x, int y)
         rright+=0.1;
         ttop+=0.1;
         bbottom-=0.1;
-	    }
+    }
 
 	if(key == GLUT_KEY_HOME){
         lleft+=0.1;
@@ -148,14 +146,14 @@ void TeclasEspecias(int key, int x, int y)
         bbottom+=0.1;
 	}
 
-	 if(key == GLUT_KEY_F9)
-        panX+=0.1;
-     if(key == GLUT_KEY_F10)
-        panX-=0.1;
-     if(key == GLUT_KEY_F11)
-        panY+=0.1;
-     if(key == GLUT_KEY_F12)
-        panY-=0.1;
+	if(key == GLUT_KEY_F9)
+       panX+=0.1;
+    if(key == GLUT_KEY_F10)
+       panX-=0.1;
+    if(key == GLUT_KEY_F11)
+       panY+=0.1;
+    if(key == GLUT_KEY_F12)
+       panY-=0.1;
 
 	glutPostRedisplay();
 }
@@ -202,11 +200,12 @@ int main(void)
 	glutCreateWindow("MEU GAME!");
 
 	// Registra a função callback de redesenho da janela de visualização
-	glutDisplayFunc(Desenha);
+	glutDisplayFunc(Draw);
 
 	// Registra a função callback para tratamento das teclas ASCII
 	glutKeyboardFunc (Teclado);
 
+	// Registra a função callback para tratamento das teclas especiais 
 	glutSpecialFunc (TeclasEspecias);
     
     // Registra a função callback para drag de mouse
