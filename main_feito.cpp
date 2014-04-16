@@ -13,15 +13,20 @@ float WINDOW_WIDTH=768.0f, WINDOW_HEIGHT=768.0f;
 
 float lleft, rright, ttop, bbottom, panX, panY;
 
+bool fired = false;
 
 PVector *pi = NULL;
 PVector *pf = NULL;
 PVector *arrow = NULL;
 
+float cx, cy, radius = 100;
+
 vector<Player> players;
 int currentPlayer = 0;
 
 void draw_circle(float x, float y, float r){
+    cx = x;
+    cy = y;
     bool filled = false;
     int subdivs = 100;
     glPushMatrix();
@@ -70,7 +75,7 @@ void Draw(void)
     gluOrtho2D (lleft+panX, rright+panX, bbottom+panY, ttop+panY);
     glMatrixMode(GL_MODELVIEW);
 
-	// Limpa a janela de visualização com a cor branca
+	// Limpa a janela de visualização com a cor preta 
 	glClearColor(0,0,0,1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -80,16 +85,17 @@ void Draw(void)
             draw_player(players[i].getW(), players[i].getH());
         glPopMatrix();
     }
-
-    if(pi != NULL) // desenha o vetor quando clika
+    // desenha o vetor quando clika
+    if(pi != NULL)
         draw_vector(pi->getX(), pi->getY(), pf->getX(), pf->getY());
-    if(arrow != NULL){
-       	//cout << arrow->getX() << " " << arrow->getY() << endl;
-        //draw_vector(arrow->getX(), arrow->getY());
-    }
-	//Executa os comandos OpenGL
+
+    // desenha o circulo da mira    
     draw_circle(players[currentPlayer].getX() + players[currentPlayer].getW()/2, 
-                players[currentPlayer].getY() + players[currentPlayer].getH()/2, 100);
+                players[currentPlayer].getY() + players[currentPlayer].getH()/2, radius);
+
+    if(arrow != NULL && !fired){
+        draw_vector(10, 10, arrow->getX(), arrow->getY());
+    }
 	glFlush();
 }
 
@@ -103,7 +109,7 @@ void mouse_click(int button, int state, int x, int y){
     if(state == 0){ // clickou
         pi = new PVector(x, y);
     }else if(state == 1){ // soltou o click
-	arrow = new PVector(pf->getX() - pi->getX(), pf->getY() - pi->getY());
+        arrow = new PVector(pf->getX() - pi->getX(), pi->getY() - pf->getY());
         pi = NULL;
         glutPostRedisplay();
     }
