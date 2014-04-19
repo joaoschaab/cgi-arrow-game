@@ -14,6 +14,9 @@ public:
 	float getSizeY(void);
 
     void addSum(float tx, float ty);
+    void addSum2(float tx, float ty);
+
+    void rotate(float angle);
 
     float getAngle(float vx, float vy);
 

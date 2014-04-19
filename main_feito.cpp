@@ -18,10 +18,10 @@ bool fired = true;
 PVector *pi = NULL;
 PVector *pf = NULL;
 PVector *arrow = NULL;
-
+float teste = 1;
 float cx, cy, radius = 100;
 const float PI_F=3.14159265358979f;
-
+float angle = 2;
 vector<Player> players;
 int currentPlayer = 0;
 
@@ -70,12 +70,15 @@ void draw_vector(float x, float y, float xf, float yf){
 }
 
 void Timer(int value){
-    if(arrow != NULL){
+    if(arrow != NULL && fired){
         arrow->addSum(arrow->getSizeX()/10, arrow->getSizeY()/10);    
-        //arrow->addSum(gravity, gravity);    
+        arrow->addSum(0, teste);
+        teste+=0.1;
+//        arrow->addSum(0, teste);
+        //arrow->rotate(angle);
     }
     glutPostRedisplay();
-    glutTimerFunc(33, Timer, 1);
+    glutTimerFunc(30, Timer, 1);
 }
 void Draw(void)
 {
@@ -96,7 +99,7 @@ void Draw(void)
         glPopMatrix();
     }
     // desenha o vetor quando clika
-    if(pi != NULL)
+    if(pi != NULL && pf != NULL)
         draw_vector(pi->getSizeX(), pi->getSizeY(), pf->getSizeX(), pf->getSizeY());
 
     float centerx = players[currentPlayer].getX() + players[currentPlayer].getW()/2;
@@ -113,7 +116,10 @@ void Draw(void)
 
         arrow->setXY(centerx, centery);
     }else if(arrow != NULL){
-        draw_vector(arrow->getX(), arrow->getY(), arrow->getX() + arrow->getSizeX(), arrow->getY()+ arrow->getSizeY());
+//        glPushMatrix();
+//            glRotatef(angle, 0.0f, 0.0f, 1.0f);
+            draw_vector(arrow->getX(), arrow->getY(), arrow->getX() + arrow->getSizeX(), arrow->getY()+ arrow->getSizeY());
+//        glPopMatrix();
     }
 	glFlush();
 }
@@ -132,9 +138,13 @@ void mouse_click(int button, int state, int x, int y){
         pi = new PVector(x, y);
         fired = !fired;
     }else if(state == 1){ // soltou o click
-        arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
+        if(pf != NULL)
+            arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
         fired = !fired;
         pi = NULL;
+        pf = NULL;
+        teste = 1;
+        angle = 0;
         //glutPostRedisplay();
     }
 }

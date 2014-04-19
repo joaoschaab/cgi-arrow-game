@@ -28,6 +28,11 @@ void PVector::addSum(float tx, float ty){
     x += tx;
     y += ty;
 }
+void PVector::addSum2(float tx, float ty){
+    sizex+= tx;
+    sizey+= ty;
+}
+
 
 void PVector::setXY(float nx, float ny){
     x = nx;
@@ -48,4 +53,11 @@ float PVector::getUnitarioX(){
 
 float PVector::getUnitarioY(){
     return sizey / getNorma();
+}
+
+void PVector::rotate(float angle){
+    float newx = ((sizex - x) * cos(angle)) - ((y - sizey) * sin(angle));
+    float newy = ((y - sizey) * cos(angle)) - ((sizex - x) * sin(angle));
+    sizex = newx;
+    sizey = newy;
 }
