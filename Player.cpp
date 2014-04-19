@@ -2,7 +2,8 @@
 #include "PVector.h"
 Player::Player(float posx, float posy)
 {
-    p = new PVector(posx, posy);
+    p = new PVector(1, 1);
+    p->addSum(posx, posy);
     w = 100.0f;
     h = 100.0f;
 }
