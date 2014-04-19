@@ -89,12 +89,13 @@ void Draw(void)
     if(pi != NULL)
         draw_vector(pi->getX(), pi->getY(), pf->getX(), pf->getY());
 
+    float centerx = players[currentPlayer].getX() + players[currentPlayer].getW()/2;
+    float centery = players[currentPlayer].getY() + players[currentPlayer].getH()/2;
     // desenha o circulo da mira    
-    draw_circle(players[currentPlayer].getX() + players[currentPlayer].getW()/2, 
-                players[currentPlayer].getY() + players[currentPlayer].getH()/2, radius);
+    draw_circle(centerx, centery, radius);
 
     if(arrow != NULL && !fired){
-        draw_vector(10, 10, arrow->getX(), arrow->getY());
+        draw_vector(centerx, centery, centerx + arrow->getX(), centery + arrow->getY());
     }
 	glFlush();
 }
@@ -102,6 +103,7 @@ void Draw(void)
 
 void mouse_drag (int x, int y){
     pf = new PVector(x, y);
+    arrow = new PVector(pi->getX() - pf->getX(), pi->getY() - pf->getY());
     glutPostRedisplay();
 }
 
@@ -109,7 +111,7 @@ void mouse_click(int button, int state, int x, int y){
     if(state == 0){ // clickou
         pi = new PVector(x, y);
     }else if(state == 1){ // soltou o click
-        arrow = new PVector(pf->getX() - pi->getX(), pi->getY() - pf->getY());
+        arrow = new PVector(pi->getX() - pf->getX(), pi->getY() - pf->getY());
         pi = NULL;
         glutPostRedisplay();
     }
