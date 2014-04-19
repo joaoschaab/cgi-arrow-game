@@ -4,6 +4,9 @@ public:
 	PVector(float sizex, float sizey);
 	~PVector(void);
 
+	void setXY(float nx, float ny);
+	void setSizeXY(float nx, float ny);
+
 	float getX(void);
 	float getY(void);
 

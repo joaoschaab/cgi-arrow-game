@@ -21,10 +21,10 @@ PVector *arrow = NULL;
 
 float cx, cy, radius = 100;
 const float PI_F=3.14159265358979f;
-float angle = 0 * PI_F/180;
 
 vector<Player> players;
 int currentPlayer = 0;
+
 
 void draw_circle(float x, float y, float r){
     cx = x;
@@ -69,6 +69,14 @@ void draw_vector(float x, float y, float xf, float yf){
     glPopMatrix();
 }
 
+void Timer(int value){
+    if(arrow != NULL){
+        arrow->addSum(arrow->getSizeX()/10, arrow->getSizeY()/10);    
+        //arrow->addSum(gravity, gravity);    
+    }
+    glutPostRedisplay();
+    glutTimerFunc(33, Timer, 1);
+}
 void Draw(void)
 {
 
@@ -98,35 +106,36 @@ void Draw(void)
 
 
     if(arrow != NULL && !fired){
-
         centerx = centerx + arrow->getUnitarioX() * radius;
         centery = centery + arrow->getUnitarioY() * radius;
 
         draw_vector(centerx, centery, centerx + arrow->getSizeX(), centery + arrow->getSizeY());
-    }else{
 
+        arrow->setXY(centerx, centery);
+    }else if(arrow != NULL){
+        draw_vector(arrow->getX(), arrow->getY(), arrow->getX() + arrow->getSizeX(), arrow->getY()+ arrow->getSizeY());
     }
 	glFlush();
 }
 
 
+
 void mouse_drag (int x, int y){
-    //if(pf != NULL)
-    //    angle -= pf->getAngle(x, y);
     pf = new PVector(x, y);
-    arrow = new PVector(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
+    arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
     glutPostRedisplay();
 }
 
 void mouse_click(int button, int state, int x, int y){
     if(state == 0){ // clickou
+        arrow = new PVector(x, y);
         pi = new PVector(x, y);
         fired = !fired;
     }else if(state == 1){ // soltou o click
-        arrow = new PVector(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
+        arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
         fired = !fired;
         pi = NULL;
-        glutPostRedisplay();
+        //glutPostRedisplay();
     }
 }
 
@@ -158,7 +167,6 @@ void TeclasEspecias(int key, int x, int y)
         //rright+=0.1;
         //ttop+=0.1;
         //bbottom-=0.1;
-        angle += 10.0f * PI_F/180;
     }
 
 	if(key == GLUT_KEY_HOME){
@@ -236,11 +244,14 @@ int main(void)
     // Registra a função callback para click de mouse
     glutMouseFunc(mouse_click);
 
+    glutTimerFunc(33, Timer, 1);
+
 	// Chama a função responsável por fazer as inicializações
 	Inicializa();
 
 	// Inicia o processamento e aguarda interações do usuário
 	glutMainLoop();
+
 
 	return 0;
 }

@@ -29,6 +29,15 @@ void PVector::addSum(float tx, float ty){
     y += ty;
 }
 
+void PVector::setXY(float nx, float ny){
+    x = nx;
+    y = ny;
+}
+
+void PVector::setSizeXY(float nx, float ny){
+    sizex = nx;
+    sizey = ny;
+}
 float PVector::getNorma(){
     return sqrt((sizex * sizex) + (sizey * sizey));
 }
@@ -40,5 +49,3 @@ float PVector::getUnitarioX(){
 float PVector::getUnitarioY(){
     return sizey / getNorma();
 }
-
-
