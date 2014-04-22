@@ -18,10 +18,9 @@ bool fired = true;
 PVector *pi = NULL;
 PVector *pf = NULL;
 PVector *arrow = NULL;
-float teste = 1;
+float gravity = 1;
 float cx, cy, radius = 100;
 const float PI_F=3.14159265358979f;
-float angle = 2;
 vector<Player> players;
 int currentPlayer = 0;
 
@@ -72,10 +71,9 @@ void draw_vector(float x, float y, float xf, float yf){
 void Timer(int value){
     if(arrow != NULL && fired){
         arrow->addSum(arrow->getSizeX()/10, arrow->getSizeY()/10);    
-        arrow->addSum(0, teste);
-        teste+=0.1;
-//        arrow->addSum(0, teste);
-        //arrow->rotate(angle);
+        arrow->addSum(0, gravity);
+        gravity+=0.1;
+//        arrow->addSum(0, gravity);
     }
     glutPostRedisplay();
     glutTimerFunc(30, Timer, 1);
@@ -89,9 +87,10 @@ void Draw(void)
     glMatrixMode(GL_MODELVIEW);
 
 	// Limpa a janela de visualização com a cor preta 
-	glClearColor(0,0,0,1);
+	glClearColor(1,1,1,0);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	// Define a cor de desenho: azul
+	glColor3f(0,0,0);
     for(int i =0; i < players.size(); i++){
         glPushMatrix();
             glTranslatef(players[i].getX(), players[i].getY(), 0.0f);
@@ -116,10 +115,7 @@ void Draw(void)
 
         arrow->setXY(centerx, centery);
     }else if(arrow != NULL){
-//        glPushMatrix();
-//            glRotatef(angle, 0.0f, 0.0f, 1.0f);
-            draw_vector(arrow->getX(), arrow->getY(), arrow->getX() + arrow->getSizeX(), arrow->getY()+ arrow->getSizeY());
-//        glPopMatrix();
+		draw_vector(arrow->getX(), arrow->getY(), arrow->getX() + arrow->getSizeX(), arrow->getY()+ arrow->getSizeY());
     }
 	glFlush();
 }
@@ -143,8 +139,7 @@ void mouse_click(int button, int state, int x, int y){
         fired = !fired;
         pi = NULL;
         pf = NULL;
-        teste = 1;
-        angle = 0;
+        gravity = 1;
         //glutPostRedisplay();
     }
 }
