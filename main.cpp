@@ -11,7 +11,7 @@
 using namespace std;
 
 //float WINDOW_WIDTH=800.0f, WINDOW_HEIGHT=800.0f;
-float WINDOW_WIDTH=1280.0f, WINDOW_HEIGHT=768.0f;
+float WINDOW_WIDTH=800, WINDOW_HEIGHT=768.0f;
 
 float lleft, rright, ttop, bbottom, panX, panY;
 
@@ -115,8 +115,6 @@ void updateCameraArrow(){
     rright = rright + speedx;
     ttop +=speedy;
     bbottom = bbottom+ speedy;
-    cout << "bot=" << bbottom << endl;
-    cout << "top=" << ttop << endl;
 }
 bool inside(float x, float y, float w, float h){
     float xx = arrow->getX();
@@ -174,6 +172,17 @@ void Timer(int value){
     glutPostRedisplay();
     glutTimerFunc(30, Timer, 1);
 }
+void slow_camera(){
+    float init_pointx = arrow->getX();
+    float init_pointy = arrow->getY();
+
+    float media_pointx = lleft + (rright - lleft)/2;
+    float media_pointy = ttop  + (bbottom - ttop)/2;
+//    cout << "initx=" << init_pointx << endl;
+//    cout << "inity=" << init_pointy << endl;
+//    cout << "mediax=" << media_pointx<< endl;
+//    cout << "mediay=" << media_pointy << endl;
+}
 void Draw(void)
 {
 
@@ -192,7 +201,7 @@ void Draw(void)
             draw_player(players[i].getW(), players[i].getH(), i);
         glPopMatrix();
     }
-
+    // desenha a linha do chao
     draw_floor();
 
     // desenha o vetor quando clika
@@ -243,7 +252,9 @@ void mouse_click(int button, int state, int x, int y){
         pi = NULL;
         pf = NULL;
         gravity = 0.3;
+        slow_camera();
         fired = !fired;
+
     }
 }
 
@@ -306,8 +317,8 @@ int main(void)
     srand ( time(NULL) );
     int num1 = rand() % 2000;
     int num2 = rand() % 2000;
-    cout << num1 << endl;
-    cout << num2 << endl;
+    cout << "play1 = "<< num1 << endl;
+    cout << "play2 = "<< num2 << endl;
     Player p1(-num1, WINDOW_HEIGHT);
     Player p2(num2, WINDOW_HEIGHT);
 
