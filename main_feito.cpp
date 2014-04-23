@@ -22,8 +22,7 @@ float gravity;
 float cx, cy, radius = 100;
 const float PI_F=3.14159265358979f;
 vector<Player> players;
-int currentPlayer = 0;
-float ang = 1;
+int currentPlayer = 1;
 
 float speedx;
 float speedy;
@@ -49,7 +48,8 @@ void draw_circle(float x, float y, float r){
 }
 
 void draw_player(float w, float h) {
-
+    if(currentPlayer == 0) glColor3f(0,0,0);
+    else glColor3f(0,0,1);
 	glLineWidth(3);
     glBegin(GL_LINE_LOOP);
         glVertex2f(0.0f, 0.0f);
@@ -70,30 +70,33 @@ void draw_vector(float x, float y, float xf, float yf){
     glPopMatrix();
 }
 
+void updateCameraPlayer(){
+    lleft = players[currentPlayer].getX() - WINDOW_WIDTH/2 + players[currentPlayer].getW()/2;
+    rright = lleft + WINDOW_WIDTH;
+}
+
+void updateCameraArrow(){
+    lleft += speedx;// arrow->getX() - WINDOW_WIDTH/2 + arrow->getSizeX()/2;
+    rright = rright + speedx;
+    ttop +=speedy ; //arrow->getY() - WINDOW_HEIGHT/2 + arrow->getSizeY()/2;
+    bbottom = bbottom+ speedy;
+}
+
 void Timer(int value){
     if(arrow != NULL && fired){
         arrow->addSum(speedx, speedy);    
 		float x = arrow->getSizeX();
 		float y = arrow->getSizeY();
-        //arrow->addSum2(0, gravity);
-
-//		cout << "angle=" << arrow->getAngle(x, y+gravity) << endl;
-//
-//		float nx = arrow->getUnitarioX() * abs(arrow->getAuxx());
-//		float ny = arrow->getUnitarioY() * abs(arrow->getAuxy());
-
-//		cout << "unix =" << arrow->getUnitarioX() << "uniy =" << arrow->getUnitarioY() << endl;
-//		cout << "sizex =" << arrow->getAuxx() << "sizey =" << arrow->getAuxy() << endl;
-//		cout << "nx =" << nx << " ny =" << ny << endl;
-
-		//arrow->setSizeY(ny);
-		//arrow->setSizeX(nx);
 
 		arrow->rotate(arrow->getAngle(x+speedx, y+speedy));
-        //gravity+=0.1;
-//		speedx += gravity;
 		speedy += gravity;
-		
+        //TODO
+        //if(collidir)
+        // entao currentplayer wins
+        //elseif(collidir com parede)
+        // entao atualiza jogador
+        // move camerajogador
+        updateCameraArrow();
     }
     glutPostRedisplay();
     glutTimerFunc(30, Timer, 1);
@@ -109,7 +112,6 @@ void Draw(void)
 	// Limpa a janela de visualização com a cor preta 
 	glClearColor(1,1,1,0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	// Define a cor de desenho: azul
 	glColor3f(0,0,0);
     for(int i =0; i < players.size(); i++){
         glPushMatrix();
@@ -117,10 +119,19 @@ void Draw(void)
             draw_player(players[i].getW(), players[i].getH());
         glPopMatrix();
     }
+    glPushMatrix();
+	glLineWidth(3);
+        glBegin(GL_LINES);
+            glVertex2f(-5000,  WINDOW_HEIGHT);
+            glVertex2f(5000, WINDOW_HEIGHT);
+        glEnd();
+    glPopMatrix();
     // desenha o vetor quando clika
-    if(pi != NULL && pf != NULL)
-        draw_vector(pi->getSizeX(), pi->getSizeY(), pf->getSizeX(), pf->getSizeY());
-
+    if(pi != NULL && pf != NULL){
+        float width = rright - lleft;
+        float height = ttop - bbottom;
+        draw_vector(lleft + pi->getSizeX(), ttop + pi->getSizeY(), lleft + pf->getSizeX(), ttop + pf->getSizeY());
+    }
     float centerx = players[currentPlayer].getX() + players[currentPlayer].getW()/2;
     float centery = players[currentPlayer].getY() + players[currentPlayer].getH()/2;
     // desenha o circulo da mira    
@@ -141,7 +152,6 @@ void Draw(void)
 }
 
 
-
 void mouse_drag (int x, int y){
     pf = new PVector(x, y);
     arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
@@ -156,13 +166,12 @@ void mouse_click(int button, int state, int x, int y){
     }else if(state == 1){ // soltou o click
         if(pf != NULL)
             arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
-        fired = !fired;
 		speedx = arrow->getSizeX() / 5;
 		speedy = arrow->getSizeY() / 5;
         pi = NULL;
         pf = NULL;
         gravity = 0.3;
-        //glutPostRedisplay();
+        fired = !fired;
     }
 }
 
@@ -190,20 +199,14 @@ void TeclasEspecias(int key, int x, int y)
        players[currentPlayer].translate(0.0f, 10.0f);
     }
     if(key == GLUT_KEY_END){
-	    //lleft-=0.1;
-        //rright+=0.1;
-        //ttop+=0.1;
-        //bbottom-=0.1;
+        if(currentPlayer == 1) currentPlayer = 0;
+        else currentPlayer = 1;
+        updateCameraPlayer();
     }
 
 	if(key == GLUT_KEY_HOME){
-//        lleft+=0.1;
-//        rright-=0.1;
-//        ttop-=0.1;
-//        bbottom+=0.1;
-		arrow->rotate(ang);
-		ang++;
-	}
+	
+    }
 
 	if(key == GLUT_KEY_F9)
        panX+=0.1;
@@ -217,7 +220,6 @@ void TeclasEspecias(int key, int x, int y)
 	glutPostRedisplay();
 }
 
-
 // Função responsável por inicializar parâmetros e variáveis
 void Inicializa(void)
 {
@@ -227,6 +229,7 @@ void Inicializa(void)
 	rright=WINDOW_WIDTH;
 	ttop=0.0;
 	bbottom=WINDOW_HEIGHT;
+    updateCameraPlayer(); 
 	gluOrtho2D(lleft+panX,rright+panX,bbottom+panY,ttop+panY);
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -238,7 +241,7 @@ int main(void)
     int argc = 0;
 	char *argv[] = { (char *)"gl", 0 };
 
-    Player p1(0.0f, WINDOW_HEIGHT);
+    Player p1(-WINDOW_WIDTH, WINDOW_HEIGHT);
     Player p2(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     p1.translate(0.0f, -p1.getH());
