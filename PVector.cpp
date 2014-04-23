@@ -3,6 +3,8 @@
 PVector::PVector(float posx, float posy){
     sizex = posx;
     sizey = posy;
+	auxx  = posx;
+	auxy  = posy;
     x = 0;
     y = 0;
 }
@@ -16,6 +18,9 @@ float PVector::getY() { return y; }
 
 float PVector::getSizeX() { return sizex; }
 float PVector::getSizeY() { return sizey; }
+
+float PVector::getAuxx() { return auxx; }
+float PVector::getAuxy() { return auxy; }
 
 float PVector::getAngle(float vx, float vy){
     // cross product
@@ -39,9 +44,18 @@ void PVector::setXY(float nx, float ny){
     y = ny;
 }
 
+void PVector::setSizeY(float ny){
+    sizey = ny;
+}
+void PVector::setSizeX(float nx){
+    sizex = nx;
+}
+
 void PVector::setSizeXY(float nx, float ny){
     sizex = nx;
     sizey = ny;
+	auxx = nx;
+	auxy = ny;
 }
 float PVector::getNorma(){
     return sqrt((sizex * sizex) + (sizey * sizey));
@@ -56,8 +70,9 @@ float PVector::getUnitarioY(){
 }
 
 void PVector::rotate(float angle){
-    float newx = ((sizex - x) * cos(angle)) - ((y - sizey) * sin(angle));
-    float newy = ((y - sizey) * cos(angle)) - ((sizex - x) * sin(angle));
+	//angle = angle * (3.14159265358979/180);
+    float newx = sizex * cos(angle) - sizey * sin(angle);
+    float newy = sizex * sin(angle) + sizey * cos(angle);
     sizex = newx;
     sizey = newy;
 }

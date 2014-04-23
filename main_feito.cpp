@@ -18,13 +18,15 @@ bool fired = true;
 PVector *pi = NULL;
 PVector *pf = NULL;
 PVector *arrow = NULL;
-float gravity = 1;
+float gravity;
 float cx, cy, radius = 100;
 const float PI_F=3.14159265358979f;
 vector<Player> players;
 int currentPlayer = 0;
+float ang = 1;
 
-
+float speedx;
+float speedy;
 void draw_circle(float x, float y, float r){
     cx = x;
     cy = y;
@@ -70,10 +72,28 @@ void draw_vector(float x, float y, float xf, float yf){
 
 void Timer(int value){
     if(arrow != NULL && fired){
-        arrow->addSum(arrow->getSizeX()/10, arrow->getSizeY()/10);    
-        arrow->addSum(0, gravity);
-        gravity+=0.1;
-//        arrow->addSum(0, gravity);
+        arrow->addSum(speedx, speedy);    
+		float x = arrow->getSizeX();
+		float y = arrow->getSizeY();
+        //arrow->addSum2(0, gravity);
+
+//		cout << "angle=" << arrow->getAngle(x, y+gravity) << endl;
+//
+//		float nx = arrow->getUnitarioX() * abs(arrow->getAuxx());
+//		float ny = arrow->getUnitarioY() * abs(arrow->getAuxy());
+
+//		cout << "unix =" << arrow->getUnitarioX() << "uniy =" << arrow->getUnitarioY() << endl;
+//		cout << "sizex =" << arrow->getAuxx() << "sizey =" << arrow->getAuxy() << endl;
+//		cout << "nx =" << nx << " ny =" << ny << endl;
+
+		//arrow->setSizeY(ny);
+		//arrow->setSizeX(nx);
+
+		arrow->rotate(arrow->getAngle(x+speedx, y+speedy));
+        //gravity+=0.1;
+//		speedx += gravity;
+		speedy += gravity;
+		
     }
     glutPostRedisplay();
     glutTimerFunc(30, Timer, 1);
@@ -137,9 +157,11 @@ void mouse_click(int button, int state, int x, int y){
         if(pf != NULL)
             arrow->setSizeXY(pi->getSizeX() - pf->getSizeX(), pi->getSizeY() - pf->getSizeY());
         fired = !fired;
+		speedx = arrow->getSizeX() / 5;
+		speedy = arrow->getSizeY() / 5;
         pi = NULL;
         pf = NULL;
-        gravity = 1;
+        gravity = 0.3;
         //glutPostRedisplay();
     }
 }
@@ -175,10 +197,12 @@ void TeclasEspecias(int key, int x, int y)
     }
 
 	if(key == GLUT_KEY_HOME){
-        lleft+=0.1;
-        rright-=0.1;
-        ttop-=0.1;
-        bbottom+=0.1;
+//        lleft+=0.1;
+//        rright-=0.1;
+//        ttop-=0.1;
+//        bbottom+=0.1;
+		arrow->rotate(ang);
+		ang++;
 	}
 
 	if(key == GLUT_KEY_F9)
