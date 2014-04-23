@@ -6,10 +6,12 @@
 #include "PVector.h"
 #include <vector>
 #include <math.h>
+#include <string.h>
+#include <stdio.h>
 using namespace std;
 
 //float WINDOW_WIDTH=800.0f, WINDOW_HEIGHT=800.0f;
-float WINDOW_WIDTH=768.0f, WINDOW_HEIGHT=768.0f;
+float WINDOW_WIDTH=1280.0f, WINDOW_HEIGHT=768.0f;
 
 float lleft, rright, ttop, bbottom, panX, panY;
 
@@ -19,19 +21,37 @@ PVector *pi = NULL;
 PVector *pf = NULL;
 PVector *arrow = NULL;
 float gravity;
-float cx, cy, radius = 100;
+float cx, cy, radius = 70;
 const float PI_F=3.14159265358979f;
 vector<Player> players;
-int currentPlayer = 1;
+int currentPlayer = 0;
 
 float speedx;
 float speedy;
+
+char texto[30];
+
+bool winner = false;
+
+void draw_text(char *string){
+    glPushMatrix();
+        glColor3f(0,0,0);
+        
+        glRasterPos2f(lleft + (rright-lleft)/2-50, ttop + bbottom/2); 
+        while(*string){
+             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,*string++); 
+        }
+	glPopMatrix();
+
+}
 void draw_circle(float x, float y, float r){
     cx = x;
     cy = y;
     bool filled = false;
     int subdivs = 100;
     glPushMatrix();
+        if(currentPlayer == 0) glColor3f(0,0,0);
+        else glColor3f(0,0,1);
         glLineWidth(3);
         if(filled){
             glBegin(GL_TRIANGLE_FAN);
@@ -47,16 +67,29 @@ void draw_circle(float x, float y, float r){
     glPopMatrix();
 }
 
-void draw_player(float w, float h) {
-    if(currentPlayer == 0) glColor3f(0,0,0);
-    else glColor3f(0,0,1);
-	glLineWidth(3);
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(0.0f, 0.0f);
-        glVertex2f(w   , 0.0f);
-        glVertex2f(w   , h   );
-        glVertex2f(0.0f, h   );
-	glEnd();
+void draw_floor(){
+    glPushMatrix();
+        glLineWidth(3);
+        glColor3f(0,0,0);
+        glBegin(GL_LINES);
+            glVertex2f(-5000,  WINDOW_HEIGHT);
+            glVertex2f(5000, WINDOW_HEIGHT);
+        glEnd();
+    glPopMatrix();
+}
+
+void draw_player(float w, float h, int player) {
+    glPushMatrix();
+        glLineWidth(3);
+        if(player == 0) glColor3f(0,0,0);
+        else glColor3f(0,0,1);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(0.0f, 0.0f);
+            glVertex2f(w   , 0.0f);
+            glVertex2f(w   , h   );
+            glVertex2f(0.0f, h   );
+        glEnd();
+    glPopMatrix();
 
 }
 
@@ -73,6 +106,8 @@ void draw_vector(float x, float y, float xf, float yf){
 void updateCameraPlayer(){
     lleft = players[currentPlayer].getX() - WINDOW_WIDTH/2 + players[currentPlayer].getW()/2;
     rright = lleft + WINDOW_WIDTH;
+    ttop = 0;
+    bbottom = WINDOW_HEIGHT;
 }
 
 void updateCameraArrow(){
@@ -81,7 +116,37 @@ void updateCameraArrow(){
     ttop +=speedy ; //arrow->getY() - WINDOW_HEIGHT/2 + arrow->getSizeY()/2;
     bbottom = bbottom+ speedy;
 }
-
+bool inside(float x, float y, float w, float h){
+    float xx = arrow->getX();
+    float yy = arrow->getY();
+    float px = arrow->getX() + xx;
+    float py = arrow->getY() + yy;
+    if(px >= x && px <= (x+w) && py >= y && py <= (y+h))
+        return true;
+    if(xx >= x && xx <= (x+w) && yy >= y && yy <= (y+h))
+        return true;
+    return false;
+}
+bool checkPlayerCollision(){
+    int p;
+    if(currentPlayer == 0) p = 1;
+    else p = 0;
+    float x = players[p].getX();
+    float y = players[p].getY();
+    float w = players[p].getW();
+    float h = players[p].getH();
+    return inside(x, y, w, h);
+}
+bool checkWallCollision(){
+    float x = arrow->getX() + arrow->getSizeX();
+    float y = arrow->getY() + arrow->getSizeY();
+    return y >= WINDOW_HEIGHT;
+}
+void swap_current_player(){
+    if(currentPlayer == 1) currentPlayer = 0;
+    else currentPlayer = 1;
+    updateCameraPlayer();
+}
 void Timer(int value){
     if(arrow != NULL && fired){
         arrow->addSum(speedx, speedy);    
@@ -90,13 +155,19 @@ void Timer(int value){
 
 		arrow->rotate(arrow->getAngle(x+speedx, y+speedy));
 		speedy += gravity;
-        //TODO
-        //if(collidir)
-        // entao currentplayer wins
-        //elseif(collidir com parede)
-        // entao atualiza jogador
-        // move camerajogador
-        updateCameraArrow();
+
+        if(checkWallCollision()){
+            swap_current_player();
+            arrow = NULL;
+        }else if(checkPlayerCollision()){
+            arrow = NULL;
+            updateCameraPlayer();
+            sprintf(texto, "Player (%d) ganhou!", currentPlayer+1);
+            draw_text(texto);
+            winner = true;
+        }else{
+            updateCameraArrow();
+        }
     }
     glutPostRedisplay();
     glutTimerFunc(30, Timer, 1);
@@ -116,16 +187,12 @@ void Draw(void)
     for(int i =0; i < players.size(); i++){
         glPushMatrix();
             glTranslatef(players[i].getX(), players[i].getY(), 0.0f);
-            draw_player(players[i].getW(), players[i].getH());
+            draw_player(players[i].getW(), players[i].getH(), i);
         glPopMatrix();
     }
-    glPushMatrix();
-	glLineWidth(3);
-        glBegin(GL_LINES);
-            glVertex2f(-5000,  WINDOW_HEIGHT);
-            glVertex2f(5000, WINDOW_HEIGHT);
-        glEnd();
-    glPopMatrix();
+
+    draw_floor();
+
     // desenha o vetor quando clika
     if(pi != NULL && pf != NULL){
         float width = rright - lleft;
@@ -134,6 +201,7 @@ void Draw(void)
     }
     float centerx = players[currentPlayer].getX() + players[currentPlayer].getW()/2;
     float centery = players[currentPlayer].getY() + players[currentPlayer].getH()/2;
+    
     // desenha o circulo da mira    
     draw_circle(centerx, centery, radius);
 
@@ -148,6 +216,8 @@ void Draw(void)
     }else if(arrow != NULL){
 		draw_vector(arrow->getX(), arrow->getY(), arrow->getX() + arrow->getSizeX(), arrow->getY()+ arrow->getSizeY());
     }
+    if(winner == true)
+        draw_text(texto);
 	glFlush();
 }
 
@@ -199,13 +269,12 @@ void TeclasEspecias(int key, int x, int y)
        players[currentPlayer].translate(0.0f, 10.0f);
     }
     if(key == GLUT_KEY_END){
-        if(currentPlayer == 1) currentPlayer = 0;
-        else currentPlayer = 1;
-        updateCameraPlayer();
+        swap_current_player();
     }
 
 	if(key == GLUT_KEY_HOME){
-	
+        winner = false;
+        updateCameraPlayer();
     }
 
 	if(key == GLUT_KEY_F9)
@@ -244,8 +313,8 @@ int main(void)
     Player p1(-WINDOW_WIDTH, WINDOW_HEIGHT);
     Player p2(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    p1.translate(0.0f, -p1.getH());
-    p2.translate(-p2.getW(), -p2.getH());
+    p1.translate(0.0f, -p1.getH()-radius/2);
+    p2.translate(-p2.getW(), -p2.getH()-radius/2);
 
     players.push_back(p1);
     players.push_back(p2);

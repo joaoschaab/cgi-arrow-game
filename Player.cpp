@@ -4,8 +4,8 @@ Player::Player(float posx, float posy)
 {
     p = new PVector(1, 1);
     p->addSum(posx, posy);
-    w = 100.0f;
-    h = 100.0f;
+    w = 70.0f;
+    h = 70.0f;
 }
 
 
